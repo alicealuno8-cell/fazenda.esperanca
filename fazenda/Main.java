@@ -1,6 +1,9 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
 class Funcionario {
 
     String nome;
@@ -109,15 +112,15 @@ public class Main {
                     break;
 
                 case 5:
-                    relatorioFuncionarios();
+                    Relatorio.relatorioFuncionarios(funcionarios, lancamentos);
                     break;
 
                 case 6:
-                    relatorioTalhoes();
+                    Relatorio.relatorioTalhoes(talhoes, lancamentos);
                     break;
 
                 case 7:
-                    relatorioSecagem();
+                    Relatorio.relatorioSecagem(lancamentos);
                     break;
 
                 case 0:
@@ -144,6 +147,8 @@ public class Main {
         String tipo = sc.nextLine();
 
         funcionarios.add(new Funcionario(nome, matricula, tipo));
+
+        salvarFuncionarios();
 
         System.out.println("Funcionário cadastrado.");
     }
@@ -254,67 +259,28 @@ public class Main {
         System.out.println("Lançamento registrado.");
     }
 
-    public static void relatorioFuncionarios() {
+    public static void salvarFuncionarios() {
 
-        for (Funcionario f : funcionarios) {
+        try {
 
-            double total = 0;
+            FileWriter fw = new FileWriter("funcionarios.txt");
+            PrintWriter pw = new PrintWriter(fw);
 
-            for (Lancamento l : lancamentos) {
+            for (Funcionario f : funcionarios) {
 
-                if (l.matriculaFuncionario == f.matricula) {
-                    total += l.litros;
-                }
+                pw.println(
+                        f.nome + ";" +
+                        f.matricula + ";" +
+                        f.tipoContrato
+                );
             }
 
-            System.out.println("Funcionário: " + f.nome);
-            System.out.println("Total colhido: " + total + " litros");
-            System.out.println();
+            pw.close();
+            fw.close();
+
+        } catch (Exception e) {
+
+            System.out.println("Erro ao salvar funcionários.");
         }
-    }
-
-    public static void relatorioTalhoes() {
-
-        for (Talhao t : talhoes) {
-
-            double total = 0;
-
-            for (Lancamento l : lancamentos) {
-
-                if (l.codigoTalhao == t.codigo) {
-                    total += l.litros;
-                }
-            }
-
-            System.out.println("Talhão: " + t.nome);
-            System.out.println("Produção atual: " + total);
-            System.out.println("Estimativa inicial: " + t.estimativaProducao);
-
-            if (total >= t.estimativaProducao) {
-                System.out.println("Meta atingida");
-            }
-
-            System.out.println();
-        }
-    }
-
-    public static void relatorioSecagem() {
-
-        double terreiro = 0;
-        double secador = 0;
-
-        for (Lancamento l : lancamentos) {
-
-            if (l.destino.equalsIgnoreCase("Terreiro")) {
-                terreiro += l.litros;
-            }
-
-            if (l.destino.equalsIgnoreCase("Secador")) {
-                secador += l.litros;
-            }
-        }
-
-        System.out.println("Total Terreiro: " + terreiro);
-        System.out.println("Total Secador: " + secador);
     }
 }
